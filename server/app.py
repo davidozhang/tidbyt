@@ -9,6 +9,7 @@ LAT_PARAM = 'lat'
 LNG_PARAM = 'lng'
 RADIUS_PARAM = 'radius'
 AIRCRAFT_CODE_PARAM = 'aircraft_code'
+ALTITUDE_PARAM = 'altitude'
 CALLSIGN_PARAM = 'callsign'
 DESTINATION_AIRPORT_IATA_PARAM = 'destination_airport_iata'
 ORIGIN_AIRPORT_IATA_PARAM = 'origin_airport_iata'
@@ -29,17 +30,14 @@ def flights_overhead():
     if not flights:
         return d
 
-    filtered_flights = []
     for flight in flights:
-        if flight.callsign and flight.altitude > 0 and flight.origin_airport_iata and flight.destination_airport_iata:
-                filtered_flights.append(flight)
-
-    for flight in filtered_flights:
-        d[FLIGHTS_PARAM].append({
-            AIRCRAFT_CODE_PARAM: flight.aircraft_code,
-            CALLSIGN_PARAM: flight.callsign,
-            DESTINATION_AIRPORT_IATA_PARAM: flight.destination_airport_iata,
-            ORIGIN_AIRPORT_IATA_PARAM: flight.origin_airport_iata
-        })
+        if flight.callsign and flight.origin_airport_iata and flight.destination_airport_iata:
+            d[FLIGHTS_PARAM].append({
+                AIRCRAFT_CODE_PARAM: flight.aircraft_code,
+                ALTITUDE_PARAM: flight.altitude,
+                CALLSIGN_PARAM: flight.callsign,
+                DESTINATION_AIRPORT_IATA_PARAM: flight.destination_airport_iata,
+                ORIGIN_AIRPORT_IATA_PARAM: flight.origin_airport_iata
+            })
 
     return d
