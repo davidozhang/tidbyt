@@ -1,20 +1,33 @@
-from flask import Flask
+from flask import Flask, request
 from FlightRadar24 import FlightRadar24API
 
 app = Flask(__name__)
 fr_api = FlightRadar24API()
-bounds = fr_api.get_bounds_by_point(47.712380, -122.316400, 5000)
 
-@app.route('/flights-overhead')
+FLIGHTS_PARAM = 'flights'
+LAT_PARAM = 'lat'
+LNG_PARAM = 'lng'
+RADIUS_PARAM = 'radius'
+AIRCRAFT_CODE_PARAM = 'aircraft_code'
+CALLSIGN_PARAM = 'callsign'
+DESTINATION_AIRPORT_IATA_PARAM = 'destination_airport_iata'
+ORIGIN_AIRPORT_IATA_PARAM = 'origin_airport_iata'
+
+@app.route('/flights')
 def flights_overhead():
-    flights = fr_api.get_flights(bounds=bounds)
-    d = {'flights': []}
+    d = {FLIGHTS_PARAM: []}
 
-    if not flights:
-        print('No flights received')
+    if not request.args.get(LAT_PARAM) and not request.args.get(LNG_PARAM) and not request.args.get(RADIUS_PARAM):
         return d
 
-    print(f'Flights received {flights}')
+    lat = float(request.args.get(LAT_PARAM))
+    lng = float(request.args.get(LNG_PARAM))
+    radius = float(request.args.get(RADIUS_PARAM))
+    bounds = fr_api.get_bounds_by_point(lat, lng, radius)
+    flights = fr_api.get_flights(bounds=bounds)
+
+    if not flights:
+        return d
 
     filtered_flights = []
     for flight in flights:
@@ -22,15 +35,11 @@ def flights_overhead():
                 filtered_flights.append(flight)
 
     for flight in filtered_flights:
-        d['flights'].append({
-            'aircraft_code': flight.aircraft_code,
-            'altitude': flight.altitude,
-            'callsign': flight.callsign,
-            'destination_airport_iata': flight.destination_airport_iata,
-            'flight_level': flight.get_flight_level(),
-            'ground_speed': flight.ground_speed,
-            'heading': flight.heading,
-            'origin_airport_iata': flight.origin_airport_iata
+        d[FLIGHTS_PARAM].append({
+            AIRCRAFT_CODE_PARAM: flight.aircraft_code,
+            CALLSIGN_PARAM: flight.callsign,
+            DESTINATION_AIRPORT_IATA_PARAM: flight.destination_airport_iata,
+            ORIGIN_AIRPORT_IATA_PARAM: flight.origin_airport_iata
         })
 
     return d
