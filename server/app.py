@@ -26,7 +26,7 @@ RADIUS_PARAM = 'radius'
 VERTICAL_SPEED_PARAM = 'vertical_speed'
 
 @app.route('/flights')
-def flights_overhead():
+def flights():
     d = {FLIGHTS_PARAM: []}
 
     if not request.args.get(LAT_PARAM) and not request.args.get(LNG_PARAM) and not request.args.get(RADIUS_PARAM):

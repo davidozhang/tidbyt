@@ -18,7 +18,7 @@ def is_current_time_between(begin_time, end_time, timezone):
 def git_pull():
     os.system("git pull")
 
-def push_to_client(api_key, device_id, render_path_without_extension, installation_id):
+def push_app(api_key, device_id, render_path_without_extension, installation_id):
     os.system(
         f"""~/pixlet render {render_path_without_extension}.star\
         && ~/pixlet push\
@@ -42,14 +42,14 @@ while True:
     non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
     working_directory = os.getenv("WORKING_DIRECTORY")
 
-    apps = glob.glob(f"{working_directory}/client/*.star")
+    apps = glob.glob(f"{working_directory}/apps/*.star")
 
     for app in apps:
         render_path_without_extension = app.split(".")[0]
         app_name_components = render_path_without_extension.split("/")[-1].split("_")
         installation_id = ''.join([s.capitalize() for s in app_name_components])
 
-        push_to_client(
+        push_app(
             api_key=api_key,
             device_id=device_id,
             render_path_without_extension=render_path_without_extension,
