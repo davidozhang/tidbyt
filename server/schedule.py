@@ -30,7 +30,7 @@ def push_to_client(api_key, device_id, render_path_without_extension, installati
 
 while True:
     git_pull()
-    
+
     load_dotenv(find_dotenv())
 
     api_key = os.getenv("TIDBYT_API_KEY")
@@ -40,8 +40,9 @@ while True:
     quiet_hour_end_time = os.getenv("QUIET_HOUR_END_TIME")
     quiet_hour_refresh_frequency_in_seconds = os.getenv("QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
     non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
+    working_directory = os.getenv("WORKING_DIRECTORY")
 
-    apps = glob.glob("../client/*.star")
+    apps = glob.glob(f"{working_directory}/client/*.star")
 
     for app in apps:
         render_path_without_extension = app.split(".")[0]
