@@ -26,7 +26,7 @@ while True:
     non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
 
     os.system(
-        f"""~/pixlet render ~/tidbyt/pixlet/flights.star && ~/pixlet push --background --installation-id Flights --api-token "{api_key}" "{device_id}" ~/tidbyt/pixlet/flights.webp"""
+        f"""~/pixlet render ~/tidbyt/client/flights.star && ~/pixlet push --background --installation-id Flights --api-token "{api_key}" "{device_id}" ~/tidbyt/client/flights.webp"""
     )
 
     quiet_hour_start_hour, quiet_hour_start_minute = quiet_hour_start_time.split(":")
