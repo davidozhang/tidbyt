@@ -22,6 +22,8 @@ while True:
     timezone = os.getenv("TIMEZONE")
     quiet_hour_start_time = os.getenv("QUIET_HOUR_START_TIME")
     quiet_hour_end_time = os.getenv("QUIET_HOUR_END_TIME")
+    quiet_hour_refresh_frequency_in_seconds = os.getenv("QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
+    non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
 
     os.system(
         f"""~/pixlet render ~/tidbyt/pixlet/flights.star && ~/pixlet push --background --installation-id Flights --api-token "{api_key}" "{device_id}" ~/tidbyt/pixlet/flights.webp"""
@@ -32,7 +34,8 @@ while True:
 
     if is_current_time_between(
         datetime_time(int(quiet_hour_start_hour), int(quiet_hour_start_minute)),
-        datetime_time(int(quiet_hour_end_hour), int(quiet_hour_end_minute))):
-        time.sleep(3600)
+        datetime_time(int(quiet_hour_end_hour), int(quiet_hour_end_minute)),
+        timezone):
+        time.sleep(int(quiet_hour_refresh_frequency_in_seconds))
     else:
-        time.sleep(30)
+        time.sleep(int(non_quiet_hour_refresh_frequency_in_seconds))
