@@ -26,11 +26,11 @@ RADIUS_PARAM = 'radius'
 VERTICAL_SPEED_PARAM = 'vertical_speed'
 
 @app.route('/flights')
-def flights():
-    d = {FLIGHTS_PARAM: []}
+def flights_api():
+    result = {FLIGHTS_PARAM: []}
 
-    if not request.args.get(LAT_PARAM) and not request.args.get(LNG_PARAM) and not request.args.get(RADIUS_PARAM):
-        return d
+    if not request.args.get(LAT_PARAM) or not request.args.get(LNG_PARAM) or not request.args.get(RADIUS_PARAM):
+        return result
 
     lat = float(request.args.get(LAT_PARAM))
     lng = float(request.args.get(LNG_PARAM))
@@ -39,49 +39,55 @@ def flights():
     flights = fr_api.get_flights(bounds=bounds)
 
     if not flights:
-        return d
+        return result
 
     for flight in flights:
-        if flight.callsign and (flight.origin_airport_iata or flight.destination_airport_iata):
-            if request.args.get(LAT4DIR_PARAM) and request.args.get(LNG4DIR_PARAM):
-                bearing = Geodesic.WGS84.Inverse(
-                    float(request.args.get(LAT4DIR_PARAM)),
-                    float(request.args.get(LNG4DIR_PARAM)),
-                    flight.latitude,
-                    flight.longitude)['azi1']
-            else:
-                bearing = Geodesic.WGS84.Inverse(lat, lng, flight.latitude, flight.longitude)['azi1']
+        if not flight.callsign:
+            continue
 
-            if bearing == 0 or bearing == 360:
-                direction = 'N'
-            elif 0 < bearing < 80:
-                direction = 'NE'
-            elif 80 <= bearing <= 100:
-                direction = 'N'
-            elif 100 < bearing < 170:
-                direction = 'SE'
-            elif 170 <= bearing <= 190:
-                direction = 'S'
-            elif 190 < bearing < 260:
-                direction = 'SW'
-            elif 260 <= bearing <= 280:
-                direction = 'W'
-            else:
-                direction = 'NW'
+        if request.args.get(LAT4DIR_PARAM) and request.args.get(LNG4DIR_PARAM):
+            bearing = Geodesic.WGS84.Inverse(
+                float(request.args.get(LAT4DIR_PARAM)),
+                float(request.args.get(LNG4DIR_PARAM)),
+                flight.latitude,
+                flight.longitude
+            )['azi1']
+        else:
+            bearing = Geodesic.WGS84.Inverse(lat, lng, flight.latitude, flight.longitude)['azi1']
 
-            d[FLIGHTS_PARAM].append({
-                AIRCRAFT_CODE_PARAM: flight.aircraft_code,
-                ALTITUDE_PARAM: flight.get_altitude(),
-                CALLSIGN_PARAM: flight.callsign,
-                DESTINATION_AIRPORT_IATA_PARAM: flight.destination_airport_iata if flight.destination_airport_iata else 'N/A',
-                DIRECTION_PARAM: direction,
-                GROUND_SPEED_PARAM: flight.get_ground_speed(),
-                HEADING_PARAM: flight.get_heading(),
-                LAT_PARAM: flight.latitude,
-                LNG_PARAM: flight.longitude,
-                ON_GROUND_PARAM: flight.on_ground == 1,
-                ORIGIN_AIRPORT_IATA_PARAM: flight.origin_airport_iata if flight.origin_airport_iata else 'N/A',
-                VERTICAL_SPEED_PARAM: flight.get_vertical_speed()
-            })
+        if bearing == 0 or bearing == 360:
+            direction = 'N'
+        elif 0 < bearing < 80:
+            direction = 'NE'
+        elif 80 <= bearing <= 100:
+            direction = 'N'
+        elif 100 < bearing < 170:
+            direction = 'SE'
+        elif 170 <= bearing <= 190:
+            direction = 'S'
+        elif 190 < bearing < 260:
+            direction = 'SW'
+        elif 260 <= bearing <= 280:
+            direction = 'W'
+        else:
+            direction = 'NW'
 
-    return d
+        destination_airport_iata = flight.destination_airport_iata if flight.destination_airport_iata else 'N/A'
+        origin_airport_iata = flight.origin_airport_iata if flight.origin_airport_iata else 'N/A'
+
+        result[FLIGHTS_PARAM].append({
+            AIRCRAFT_CODE_PARAM: flight.aircraft_code,
+            ALTITUDE_PARAM: flight.get_altitude(),
+            CALLSIGN_PARAM: flight.callsign,
+            DESTINATION_AIRPORT_IATA_PARAM: destination_airport_iata,
+            DIRECTION_PARAM: direction,
+            GROUND_SPEED_PARAM: flight.get_ground_speed(),
+            HEADING_PARAM: flight.get_heading(),
+            LAT_PARAM: flight.latitude,
+            LNG_PARAM: flight.longitude,
+            ON_GROUND_PARAM: flight.on_ground == 1,
+            ORIGIN_AIRPORT_IATA_PARAM: origin_airport_iata,
+            VERTICAL_SPEED_PARAM: flight.get_vertical_speed()
+        })
+
+    return result
