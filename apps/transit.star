@@ -4,7 +4,7 @@ def main():
     children = [
         render.Text(content="Transit", color="#999"),
         render.Text(content="App", color="#999"),
-        render.Text(content="In Progress!", color="#999")
+        render.Text(content="WIP", color="#999")
     ]
 
     return render.Root(
