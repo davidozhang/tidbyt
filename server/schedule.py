@@ -14,6 +14,12 @@ def is_current_time_between(begin_time, end_time, timezone):
     else: # crosses midnight
         return now >= begin_time or now <= end_time
 
+def push_to_client(api_key, device_id, render_path_without_extension, installation_id):
+    os.system(
+        f"""~/pixlet render {render_path_without_extension}.star && ~/pixlet push --background --installation-id {installation_id} --api-token "{api_key}" "{device_id}" {render_path_without_extension}.webp"""
+    )
+
+
 while True:
     load_dotenv(find_dotenv())
 
@@ -25,8 +31,18 @@ while True:
     quiet_hour_refresh_frequency_in_seconds = os.getenv("QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
     non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
 
-    os.system(
-        f"""~/pixlet render ~/tidbyt/client/flights.star && ~/pixlet push --background --installation-id Flights --api-token "{api_key}" "{device_id}" ~/tidbyt/client/flights.webp"""
+    push_to_client(
+        api_key=api_key,
+        device_id=device_id,
+        render_path_without_extension="~/tidbyt/client/flights",
+        installation_id='Flights'
+    )
+
+    push_to_client(
+        api_key=api_key,
+        device_id=device_id,
+        render_path_without_extension="~/tidbyt/client/hello_world",
+        installation_id='HelloWorld'
     )
 
     quiet_hour_start_hour, quiet_hour_start_minute = quiet_hour_start_time.split(":")
