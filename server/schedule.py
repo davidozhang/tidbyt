@@ -15,13 +15,22 @@ def is_current_time_between(begin_time, end_time, timezone):
     else: # crosses midnight
         return now >= begin_time or now <= end_time
 
+def git_pull():
+    os.system("git pull")
+
 def push_to_client(api_key, device_id, render_path_without_extension, installation_id):
     os.system(
-        f"""~/pixlet render {render_path_without_extension}.star && ~/pixlet push --background --installation-id {installation_id} --api-token "{api_key}" "{device_id}" {render_path_without_extension}.webp"""
+        f"""~/pixlet render {render_path_without_extension}.star\
+        && ~/pixlet push\
+        --background\
+        --installation-id {installation_id}\
+        --api-token "{api_key}" "{device_id}" {render_path_without_extension}.webp"""
     )
 
 
 while True:
+    git_pull()
+    
     load_dotenv(find_dotenv())
 
     api_key = os.getenv("TIDBYT_API_KEY")
@@ -38,7 +47,7 @@ while True:
         render_path_without_extension = app.split(".")[0]
         app_name_components = render_path_without_extension.split("/")[-1].split("_")
         installation_id = ''.join([s.capitalize() for s in app_name_components])
-        
+
         push_to_client(
             api_key=api_key,
             device_id=device_id,
