@@ -16,7 +16,7 @@ def is_current_time_between(begin_time, end_time, timezone):
         return now >= begin_time or now <= end_time
 
 def git_pull():
-    os.system("git pull")
+    os.system(f"cd {working_directory} && git pull && cd -")
 
 def push_app(api_key, device_id, render_path_without_extension, installation_id):
     os.system(
@@ -29,8 +29,6 @@ def push_app(api_key, device_id, render_path_without_extension, installation_id)
 
 
 while True:
-    git_pull()
-
     load_dotenv(find_dotenv())
 
     api_key = os.getenv("TIDBYT_API_KEY")
@@ -41,6 +39,8 @@ while True:
     quiet_hour_refresh_frequency_in_seconds = os.getenv("QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
     non_quiet_hour_refresh_frequency_in_seconds = os.getenv("NON_QUIET_HOUR_REFRESH_FREQUENCY_IN_SECONDS")
     working_directory = os.getenv("WORKING_DIRECTORY")
+
+    git_pull(working_directory)
 
     apps = glob.glob(f"{working_directory}/apps/*.star")
 
