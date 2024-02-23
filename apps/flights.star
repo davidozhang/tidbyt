@@ -33,7 +33,6 @@ def main():
 
     if flights:
         flight = flights[0]
-        direction_text = None
 
         direction_symbol = DIRECTION_TO_SYMBOL_MAPPING[flight['direction']]
         primary_text = direction_symbol
