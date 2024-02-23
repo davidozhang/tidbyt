@@ -15,7 +15,7 @@ def is_current_time_between(begin_time, end_time, timezone):
     else: # crosses midnight
         return now >= begin_time or now <= end_time
 
-def git_pull():
+def git_pull(working_directory):
     os.system(f"cd {working_directory} && git pull && cd -")
 
 def push_app(api_key, device_id, render_path_without_extension, installation_id):
