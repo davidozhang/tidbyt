@@ -26,7 +26,7 @@ def main():
             secondary_text += ": " + str(arrival_times[0]["arrival_time"]) + " min"
 
         if not arrival_times[0]["predicted"]:
-            secondary_text += "˙"
+            secondary_text += "~"
 
         if len(arrival_times) > 1:
             tertiary_text = arrival_times[1]["route"]
@@ -37,7 +37,7 @@ def main():
                 tertiary_text += ": " + str(arrival_times[1]["arrival_time"]) + " min"
 
             if not arrival_times[1]["predicted"]:
-                tertiary_text += "˙"
+                tertiary_text += "~"
 
     if primary_text:
         children.append(
