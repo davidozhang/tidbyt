@@ -1,8 +1,14 @@
+import os
+import requests
+
+from datetime import datetime
+from dotenv import load_dotenv
 from flask import Flask, request
 from FlightRadar24 import FlightRadar24API
 from geographiclib.geodesic import Geodesic
 
 app = Flask(__name__)
+
 fr_api = FlightRadar24API()
 flight_tracker = fr_api.get_flight_tracker_config()
 flight_tracker.limit = 1
@@ -24,6 +30,15 @@ ON_GROUND_PARAM = 'on_ground'
 ORIGIN_AIRPORT_IATA_PARAM = 'origin_airport_iata'
 RADIUS_PARAM = 'radius'
 VERTICAL_SPEED_PARAM = 'vertical_speed'
+
+STOP_ID_PARAM = 'stop_id'
+OBA_API_KEY_PARAM = 'oba_api_key'
+ROUTE_PARAM = 'route'
+ARRIVAL_TIME_PARAM = 'arrival_time'
+ARRIVAL_TIMES_PARAM = 'arrival_times'
+STOP_NAME_PARAM = 'stop_name'
+
+OBA_ADS_API = 'https://api.pugetsound.onebusaway.org/api/where/arrivals-and-departures-for-stop'
 
 @app.route('/flights')
 def flights_api():
@@ -88,6 +103,47 @@ def flights_api():
             ON_GROUND_PARAM: flight.on_ground == 1,
             ORIGIN_AIRPORT_IATA_PARAM: origin_airport_iata,
             VERTICAL_SPEED_PARAM: flight.get_vertical_speed()
+        })
+
+    return result
+
+@app.route('/transit')
+def transit_api():
+    load_dotenv('/home/davidozhang/tidbyt/server/.env')
+
+    oba_api_key = os.getenv('OBA_API_KEY')
+    result = {ARRIVAL_TIMES_PARAM: []}
+
+    if not request.args.get(STOP_ID_PARAM):
+        return result
+
+    stop_id = request.args.get(STOP_ID_PARAM)
+
+    adfs = requests.get(
+        f'{OBA_ADS_API}/{stop_id}.json?key={oba_api_key}').json()
+
+    if 'data' not in adfs:
+        return result
+
+    ads = adfs['data']['entry']['arrivalsAndDepartures']
+    stops = adfs['data']['references']['stops']
+
+    for stop in stops:
+        if stop['id'] == stop_id:
+            result[STOP_NAME_PARAM] = stop['name']
+            break
+
+    for ad in ads:
+        if not ad['predicted']:
+            continue
+        predicted_arrival_time_ms = ad['predictedArrivalTime']
+        route_short_name = ad['routeShortName']
+        td = datetime.fromtimestamp(int(predicted_arrival_time_ms)/1000) - datetime.now()
+        arrival_time = td.seconds/60
+
+        result[ARRIVAL_TIMES_PARAM].append({
+            ROUTE_PARAM: route_short_name,
+            ARRIVAL_TIME_PARAM: arrival_time
         })
 
     return result
