@@ -1,3 +1,4 @@
+import math
 import os
 import requests
 
@@ -37,6 +38,7 @@ ROUTE_PARAM = 'route'
 ARRIVAL_TIME_PARAM = 'arrival_time'
 ARRIVAL_TIMES_PARAM = 'arrival_times'
 STOP_NAME_PARAM = 'stop_name'
+PREDICTED_PARAM = 'predicted'
 
 OBA_ADS_API = 'https://api.pugetsound.onebusaway.org/api/where/arrivals-and-departures-for-stop'
 
@@ -134,16 +136,23 @@ def transit_api():
             break
 
     for ad in ads:
-        if not ad['predicted']:
-            continue
-        predicted_arrival_time_ms = ad['predictedArrivalTime']
+        predicted = False
+        if ad['predicted']:
+            arrival_time_ms = ad['predictedArrivalTime']
+            predicted = True
+        else:
+            arrival_time_ms = ad['scheduledArrivalTime']
         route_short_name = ad['routeShortName']
-        td = datetime.fromtimestamp(int(predicted_arrival_time_ms)/1000) - datetime.now()
-        arrival_time = td.seconds/60
+        td = datetime.fromtimestamp(int(arrival_time_ms)/1000) - datetime.now()
+        arrival_time = math.floor(td.seconds/60)
+
+        if arrival_time > 100:
+            continue
 
         result[ARRIVAL_TIMES_PARAM].append({
             ROUTE_PARAM: route_short_name,
-            ARRIVAL_TIME_PARAM: arrival_time
+            ARRIVAL_TIME_PARAM: arrival_time,
+            PREDICTED_PARAM: predicted
         })
 
     return result

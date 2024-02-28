@@ -16,7 +16,6 @@ def main():
         tertiary_text = "Found"
     else:
         primary_text = stop_name
-        secondary_text = ""
         tertiary_text = ""
 
         secondary_text = arrival_times[0]["route"]
@@ -26,6 +25,9 @@ def main():
         else:
             secondary_text += ": " + str(arrival_times[0]["arrival_time"]) + " min"
 
+        if not arrival_times[0]["predicted"]:
+            secondary_text += "*"
+
         if len(arrival_times) > 1:
             tertiary_text = arrival_times[1]["route"]
             arrival_time = arrival_times[1]["arrival_time"]
@@ -33,6 +35,9 @@ def main():
                 tertiary_text += ": NOW"
             else:
                 tertiary_text += ": " + str(arrival_times[1]["arrival_time"]) + " min"
+
+            if not arrival_times[1]["predicted"]:
+                tertiary_text += "*"
 
     if primary_text:
         children.append(
